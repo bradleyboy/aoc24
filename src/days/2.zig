@@ -94,5 +94,5 @@ pub fn run(alloc: Allocator) !void {
         }
     }
 
-    std.debug.print("day 2, safe reports: {d}", .{safe_reports});
+    std.debug.print("day 2, safe reports: {d}\n", .{safe_reports});
 }
