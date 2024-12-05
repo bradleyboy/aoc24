@@ -148,12 +148,14 @@ fn part2(alloc: Allocator) !void {
             try row.append(line[i]);
         }
 
-        try rows.append(try row.toOwnedSlice());
+        if (row.items.len > 0) {
+            try rows.append(try row.toOwnedSlice());
+        }
     }
 
     var total: usize = 0;
 
-    for (1..rows.items.len - 2) |i| {
+    for (1..rows.items.len - 1) |i| {
         const row = rows.items[i];
         for (1..row.len - 1) |j| {
             const char = row[j];
