@@ -33,8 +33,8 @@ fn advanceInstructionToken(current: NextInstructionToken) NextInstructionToken {
 
 pub fn run(alloc: Allocator) !void {
     // const input = "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))";
-    // const input = "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))";
-    //
+    // const input = "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mu(8,5))";
+
     const input = try std.fs.cwd().readFileAlloc(alloc, "input/day3.txt", std.math.maxInt(usize));
     defer alloc.free(input);
 
