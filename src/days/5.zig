@@ -106,5 +106,5 @@ pub fn run(alloc: Allocator) !void {
         }
     }
 
-    std.debug.print("day 5, valid (fixed) updates: {d}", .{valid_updates_middle_page_sum});
+    std.debug.print("day 5, valid (fixed) updates: {d}\n", .{valid_updates_middle_page_sum});
 }
