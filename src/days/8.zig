@@ -7,6 +7,20 @@ fn rowFromIndex(idx: usize, row_len: usize) usize {
     return @as(usize, @intFromFloat(@floor(@as(f64, @floatFromInt(idx)) / @as(f64, @floatFromInt(row_len)))));
 }
 
+pub fn printMap(map: []u8, overrides: []u2, line_len: usize) void {
+    for (0..map.len, map) |idx, c| {
+        if (@rem(idx, line_len) == 0) {
+            std.debug.print("\n", .{});
+        }
+        if (c == '.' and overrides[idx] == 1) {
+            std.debug.print("#", .{});
+        } else {
+            std.debug.print("{c}", .{c});
+        }
+    }
+    std.debug.print("\n", .{});
+}
+
 pub fn run(alloc: Allocator) !void {
     var file = try std.fs.cwd().openFile("input/day8.txt", .{});
     defer file.close();
@@ -50,21 +64,37 @@ pub fn run(alloc: Allocator) !void {
             if (match == c) {
                 const distance = j - i;
                 const distance_row_span = j_row - i_row;
+                antinode_map[i] = 1;
+                antinode_map[j] = 1;
 
-                if (distance <= i) {
-                    const antinode_row = rowFromIndex(i - distance, line_len);
+                var k = i;
+                while (k >= distance and k - distance >= 0) {
+                    const antinode_idx = k - distance;
+                    const antinode_row = rowFromIndex(antinode_idx, line_len);
+                    const k_row = rowFromIndex(k, line_len);
 
-                    if (distance_row_span <= i_row and i_row - distance_row_span == antinode_row) {
-                        antinode_map[i - distance] = 1;
+                    if (distance_row_span <= k_row and k_row - distance_row_span == antinode_row) {
+                        antinode_map[antinode_idx] = 1;
+                    } else {
+                        break;
                     }
+
+                    k = antinode_idx;
                 }
 
-                if (distance < map_slice.len - j) {
-                    const antinode_row = rowFromIndex(j + distance, line_len);
+                var m = j;
+                while (m + distance < map_slice.len) {
+                    const antinode_idx = m + distance;
+                    const antinode_row = rowFromIndex(antinode_idx, line_len);
+                    const m_row = rowFromIndex(m, line_len);
 
-                    if (j_row + distance_row_span == antinode_row) {
-                        antinode_map[j + distance] = 1;
+                    if (m_row + distance_row_span == antinode_row) {
+                        antinode_map[antinode_idx] = 1;
+                    } else {
+                        break;
                     }
+
+                    m = antinode_idx;
                 }
             }
         }
