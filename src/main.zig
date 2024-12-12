@@ -7,6 +7,7 @@ const day5 = @import("./days/5.zig");
 const day6 = @import("./days/6.zig");
 const day7 = @import("./days/7.zig");
 const day8 = @import("./days/8.zig");
+const day9 = @import("./days/9.zig");
 
 const Allocator = std.mem.Allocator;
 
@@ -23,4 +24,5 @@ pub fn main() !void {
     try day6.run(allocator);
     try day7.run(allocator);
     try day8.run(allocator);
+    try day9.run(allocator);
 }
