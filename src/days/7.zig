@@ -87,7 +87,7 @@ pub fn run(alloc: Allocator) !void {
 
         const combos = try generateOperationCombinations(alloc, "+*|", input_slice.len - 1, &combo_cache);
 
-        for (combos) |c| {
+        combos: for (combos) |c| {
             var result = input_slice[0];
 
             for (1..input_slice.len) |i| {
@@ -103,6 +103,10 @@ pub fn run(alloc: Allocator) !void {
                     const concat = try std.fmt.parseInt(usize, concat_s, 10);
                     alloc.free(concat_s);
                     result = concat;
+                }
+
+                if (result > expected) {
+                    continue :combos;
                 }
             }
 
