@@ -101,6 +101,61 @@ fn countUniquePeaks(alloc: Allocator, map: []const u4, line_len: usize, starting
     return ret_list;
 }
 
+fn countUniqueTrails(map: []const u4, line_len: usize, starting_index: usize, cache: *AuthHashMap(usize, usize)) !usize {
+    const col = @rem(starting_index, line_len);
+    const starting_elevation = map[starting_index];
+
+    if (starting_elevation == 9) {
+        return 1;
+    }
+
+    if (cache.get(starting_index)) |count| {
+        return count;
+    }
+
+    var result: usize = 0;
+    const next_elevation = starting_elevation + 1;
+
+    if (starting_index >= line_len) {
+        const up_index = starting_index - line_len;
+        const up_val = map[up_index];
+
+        if (up_val == next_elevation) {
+            result += try countUniqueTrails(map, line_len, up_index, cache);
+        }
+    }
+
+    if (starting_index + line_len < map.len) {
+        const down_index = starting_index + line_len;
+        const down_val = map[down_index];
+
+        if (down_val == next_elevation) {
+            result += try countUniqueTrails(map, line_len, down_index, cache);
+        }
+    }
+
+    if (col > 0) {
+        const left_index = starting_index - 1;
+        const left_val = map[left_index];
+
+        if (left_val == next_elevation) {
+            result += try countUniqueTrails(map, line_len, left_index, cache);
+        }
+    }
+
+    if (col < line_len - 1) {
+        const right_index = starting_index + 1;
+        const right_val = map[right_index];
+
+        if (right_val == next_elevation) {
+            result += try countUniqueTrails(map, line_len, right_index, cache);
+        }
+    }
+
+    try cache.put(starting_index, result);
+    return result;
+}
+
 pub fn run(alloc: Allocator) !void {
     var file = try std.fs.cwd().openFile("input/day10.txt", .{});
     defer file.close();
@@ -126,14 +181,26 @@ pub fn run(alloc: Allocator) !void {
         }
     }
 
-    var sum: usize = 0;
+    var part_1_sum: usize = 0;
     for (0.., map.items) |idx, location| {
         if (location == 0) {
             const result = try countUniquePeaks(alloc, map.items, line_len, idx);
             defer result.deinit();
-            sum += result.items.len;
+            part_1_sum += result.items.len;
         }
     }
 
-    std.debug.print("day 10, part 1: {d}\n", .{sum});
+    std.debug.print("day 10, part 1: {d}\n", .{part_1_sum});
+
+    var part_2_sum: usize = 0;
+    var calc_cache = AuthHashMap(usize, usize).init(alloc);
+    defer calc_cache.deinit();
+    for (0.., map.items) |idx, location| {
+        if (location == 0) {
+            const result = try countUniqueTrails(map.items, line_len, idx, &calc_cache);
+            part_2_sum += result;
+        }
+    }
+
+    std.debug.print("day 10, part 2: {d}\n", .{part_2_sum});
 }
