@@ -146,7 +146,7 @@ fn botInfoFromLine(line: []u8) !Bot {
     };
 }
 
-pub fn run(_: Allocator) !void {
+pub fn run(alloc: Allocator) !void {
     var file = try std.fs.cwd().openFile("input/day14.txt", .{});
     defer file.close();
 
@@ -154,16 +154,27 @@ pub fn run(_: Allocator) !void {
     var in_stream = buf_reader.reader();
     var buf: [1024]u8 = undefined;
 
-    var map = [_]u64{0} ** 10403;
+    var bots = ArrayList(Bot).init(alloc);
+    defer bots.deinit();
 
     while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
         const bot = try botInfoFromLine(line);
-        const new_pos = bot.pos2dAtSecond(SECONDS);
-
-        map[new_pos] = map[new_pos] + 1;
+        try bots.append(bot);
     }
 
-    const result = calcMap(&map);
+    for (100..10000) |s| {
+        var map = [_]u64{0} ** 10403;
+        for (bots.items) |bot| {
+            const new_pos = bot.pos2dAtSecond(@as(isize, @intCast(s)));
+            map[new_pos] = map[new_pos] + 1;
+        }
 
-    std.debug.print("day 14, result: {d}\n", .{result});
+        const result = calcMap(&map);
+
+        // Very brute force, but eventually this narrowed down to the result for my input.
+        if (result < 150000000) {
+            printMap(&map);
+            std.debug.print("day 14, result at {d}: {d}\n", .{ s, result });
+        }
+    }
 }
